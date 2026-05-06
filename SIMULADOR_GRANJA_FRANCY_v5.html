@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIMULADOR EDUCATIVO DE GRANJA PECUARIA - FRANCY</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f5f5f5; color: #333; }
+    
+    .header { background: #2e7d32; color: white; padding: 1rem; text-align: center; }
+    .header h1 { font-size: 24px; margin-bottom: 0.5rem; }
+    
+    .nav { display: flex; gap: 0.5rem; background: white; padding: 1rem; border-bottom: 2px solid #ddd; flex-wrap: wrap; }
+    .nav button { padding: 0.8rem 1.5rem; background: #f0f0f0; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; }
+    .nav button.active { background: #2e7d32; color: white; }
+    .nav button:hover { background: #e0e0e0; }
+    .nav button.active:hover { background: #1b5e20; }
+    
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+    .tab { display: none; }
+    .tab.show { display: block; }
+    
+    .section { background: white; padding: 1.5rem; margin: 1rem 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+    @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+    
+    .btn { padding: 1rem; background: #2e7d32; color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; margin: 0.5rem 0; width: 100%; font-size: 16px; }
+    .btn:hover { background: #1b5e20; }
+    .btn-blue { background: #1976d2; }
+    .btn-blue:hover { background: #0d47a1; }
+    
+    .input-group { margin: 1rem 0; }
+    .input-group label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+    .input-group input { width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+    
+    .alert { padding: 1rem; margin: 1rem 0; border-radius: 4px; border-left: 4px solid; }
+    .alert-info { background: #e3f2fd; color: #1565c0; border-color: #1976d2; }
+    .alert-success { background: #e8f5e9; color: #2e7d32; border-color: #4caf50; }
+    .alert-danger { background: #ffebee; color: #c62828; border-color: #f44336; }
+    
+    .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    @media (max-width: 768px) { .info-grid { grid-template-columns: 1fr; } }
+    
+    .info-card { background: #f9f9f9; padding: 1rem; border-radius: 4px; border-left: 4px solid #2e7d32; }
+    .info-card h3 { color: #2e7d32; margin-bottom: 0.5rem; }
+    
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
+    .modal-overlay.show { display: flex; }
+    
+    .modal { background: white; padding: 2rem; border-radius: 12px; max-width: 500px; width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .modal h2 { color: #2e7d32; margin-bottom: 1rem; }
+    .modal-close { float: right; font-size: 28px; cursor: pointer; color: #999; }
+    .modal-close:hover { color: #000; }
+    
+    h2 { color: #2e7d32; margin-bottom: 1rem; }
+    h3 { color: #2e7d32; margin: 1rem 0 0.5rem 0; }
+    p { line-height: 1.6; margin: 0.5rem 0; }
+    ul { margin-left: 1.5rem; }
+    li { margin: 0.3rem 0; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🚜 SIMULADOR EDUCATIVO DE GRANJA PECUARIA - FRANCY</h1>
+  <p>Aprende a administrar una granja agropecuaria</p>
+</div>
+
+<div class="nav">
+  <button class="active" onclick="mostrarTab('inicio')">🏠 Inicio</button>
+  <button onclick="mostrarTab('config')">⚙️ Configuración</button>
+  <button onclick="mostrarTab('juego')">🎮 Simulación</button>
+  <button onclick="mostrarTab('plano')">🏞️ Plano Finca</button>
+</div>
+
+<div class="container">
+  
+  <!-- TAB INICIO -->
+  <div id="inicio" class="tab show">
+    <div class="section">
+      <h2>Bienvenido al Simulador Educativo de Granja Pecuaria</h2>
+      <p>Este simulador educativo te permitirá aprender a administrar una granja de 80 hectáreas con todos los cálculos reales de producción, costos y rentabilidad.</p>
+      
+      <h3>📋 Información de la Granja</h3>
+      <ul>
+        <li><strong>Extensión total:</strong> 80 hectáreas</li>
+        <li><strong>Ganadería (vacas y cabras):</strong> 60 hectáreas</li>
+        <li><strong>Cabras (dedicadas):</strong> 10 hectáreas</li>
+        <li><strong>Maíz (cultivo):</strong> 5 hectáreas</li>
+        <li><strong>Galpones (gallinas):</strong> 5 hectáreas</li>
+      </ul>
+      
+      <h3>🐄 Producción Diaria y Mensual por Animal</h3>
+      <div class="grid">
+        <div class="info-card">
+          <h3>🐄 Vaca en Lactancia</h3>
+          <p><strong>Producción:</strong> 20 litros/día</p>
+          <p><strong>Mensual:</strong> 600 litros (20 días × 30)</p>
+          <p><strong>Precio:</strong> $3,000/litro</p>
+          <p><strong>Ingreso/mes:</strong> $1,800,000</p>
+        </div>
+        <div class="info-card">
+          <h3>🐐 Cabra en Producción</h3>
+          <p><strong>Producción:</strong> 3 litros/día</p>
+          <p><strong>Mensual:</strong> 90 litros (20 días × 30)</p>
+          <p><strong>Precio:</strong> $5,000/litro</p>
+          <p><strong>Ingreso/mes:</strong> $450,000</p>
+        </div>
+        <div class="info-card">
+          <h3>🐔 Gallina en Postura</h3>
+          <p><strong>Producción:</strong> 1 panal/mes</p>
+          <p><strong>Precio:</strong> $30,000/panal</p>
+          <p><strong>Ingreso/mes:</strong> $30,000</p>
+        </div>
+      </div>
+      
+      <h3>🌾 Producción de Maíz (IMPORTANTE)</h3>
+      <div class="alert alert-info">
+        <strong>Ciclo de cultivo:</strong> 3 meses desde siembra hasta cosecha<br>
+        <strong>Semilla requerida:</strong> 100 kg/hectárea<br>
+        <strong>Producción por hectárea:</strong> 5 toneladas = 5,000 kg<br>
+        <strong>Precio venta:</strong> $95,000/bulto (50kg)<br>
+        <strong>Total bultos/hectárea:</strong> 100 bultos = $9,500,000<br>
+        <strong>5 hectáreas = 500 bultos = $47,500,000 (cada 3 meses)</strong>
+      </div>
+      
+      <h3>🐄 Consumo de Maíz (Alimentación Animales)</h3>
+      <div class="alert alert-warning">
+        <strong>20 Vacas consumen:</strong> 3 toneladas/mes<br>
+        <strong>Ejemplo:</strong> Si tienes 40 vacas = 6 toneladas/mes<br>
+        <strong>Cálculo:</strong> (Número de vacas ÷ 20) × 3 toneladas = consumo mensual<br>
+        <strong>Lo que sobra se puede vender.</strong>
+      </div>
+      
+      <h3>💰 Precios de Compra/Venta de Animales (Compra = Venta)</h3>
+      <div class="grid">
+        <div>
+          <strong>Vacas:</strong>
+          <p>🐄 Lactancia: $4,000,000</p>
+          <p>🐄 Seca: $2,000,000</p>
+        </div>
+        <div>
+          <strong>Cabras:</strong>
+          <p>🐐 Producción: $200,000</p>
+          <p>🐐 Seca: $100,000</p>
+        </div>
+        <div>
+          <strong>Aves y Otros:</strong>
+          <p>🐔 Gallina: $30,000</p>
+          <p>🐄 Ternero (cría): $500,000</p>
+        </div>
+      </div>
+      
+      <h3>🌾 Abonamiento Obligatorio Mensual</h3>
+      <div class="alert alert-danger">
+        <strong>OBLIGATORIO CADA MES - NO OPCIONAL</strong><br><br>
+        <strong>Cantidad:</strong> Se abona mitad de la finca cada mes (rotación)<br>
+        <strong>Hectáreas a abonar/mes:</strong> 37.5 hectáreas (mitad de 75 ha)<br>
+        <strong>Desglose por área:</strong><br>
+        • Ganadería: 30 ha/mes (mitad de 60)<br>
+        • Cabras: 5 ha/mes (mitad de 10)<br>
+        • Maíz: 2.5 ha/mes (mitad de 5)<br>
+        <strong>Bultos de abono 15-15-15:</strong> 4 bultos/hectárea × 37.5 ha = 150 bultos<br>
+        <strong>Costo abono:</strong> 150 bultos × $150,000 = $22,500,000<br>
+        <strong>Mano de obra (1 trabajador × 1 semana):</strong> $120,000<br>
+        <strong>TOTAL MENSUAL: $22,620,000</strong>
+      </div>
+      
+      <h3>👷 Nómina y Trabajadores (MUY IMPORTANTE)</h3>
+      <div class="alert alert-info">
+        <strong>Trabajadores Iniciales:</strong> 2 operarios<br>
+        <strong>Costo/trabajador/día:</strong> $60,000<br>
+        <strong>Días laborales/mes:</strong> 20 días<br>
+        <strong>Costo/trabajador/mes:</strong> $1,200,000<br><br>
+        <strong>REGLA DE CONTRATACIÓN:</strong><br>
+        • 2 vacas-40 vacas = 2 trabajadores<br>
+        • 41 vacas-60 vacas = 3 trabajadores<br>
+        • 61 vacas-80 vacas = 4 trabajadores<br>
+        • Por cada 20 vacas adicionales = +1 trabajador<br><br>
+        <strong>MAÍZ (5 hectáreas):</strong> Requiere 1 trabajador adicional<br>
+        <strong>Nómina con 2 trabajadores:</strong> 2 × $1,200,000 = $2,400,000/mes
+      </div>
+      
+      <h3>🚛 Camión de Transporte de Leche (OPCIONAL)</h3>
+      <div class="alert alert-success">
+        <strong>Requisito:</strong> Producción ≥ 2,500 litros/mes<br>
+        <strong>Costo Total:</strong> $100,000,000<br>
+        <strong>Sistema de Amortización:</strong><br>
+        • 4 cuotas de $25,000,000<br>
+        • Se descuenta 1 cuota cada 2 meses<br>
+        • Se resta automáticamente en "Registrar Gastos"<br>
+        • Ejemplo: Mes 2, 4, 6, 8 = Cuota 1, 2, 3, 4<br>
+        <strong>Ventaja:</strong> Transporte propio = mayor rentabilidad
+      </div>
+      
+      <h3>💰 Impuestos (CADA TRIMESTRE)</h3>
+      <div class="alert alert-warning">
+        <strong>Se calculan en meses 3, 6, 9, 12</strong><br>
+        <strong>Porcentaje:</strong> 3% sobre GANANCIAS NETAS del trimestre<br>
+        <strong>Ejemplo:</strong> Si ganaste $10,000,000 en el trimestre = 3% = $300,000 en impuestos<br>
+        <strong>Importante:</strong> Impuestos se descuentan automáticamente en Registrar Gastos
+      </div>
+      
+      <h3>📊 Ejemplo de Cálculo Mensual (CON 20 VACAS Y 10 CABRAS)</h3>
+      <div class="section" style="background: #f9f9f9;">
+        <h4>INGRESOS:</h4>
+        <ul>
+          <li>20 vacas × 600L/mes × $3,000/L = $36,000,000</li>
+          <li>10 cabras × 90L/mes × $5,000/L = $4,500,000</li>
+          <li><strong>Total Ingresos: $40,500,000</strong></li>
+        </ul>
+        
+        <h4>EGRESOS:</h4>
+        <ul>
+          <li>Nómina (2-3 trabajadores según vacas): $2,400,000 - $3,600,000</li>
+          <li>Abonamiento obligatorio (75 ha rotativo): $22,620,000</li>
+          <li>Consumo maíz (20 vacas × 3 ton): Depende si tienes maíz propio</li>
+          <li><strong>Total Egresos Base: $25,020,000 - $26,220,000</strong></li>
+        </ul>
+        
+        <h4>GANANCIA NETA MENSUAL:</h4>
+        <p><strong>$40,500,000 - $26,220,000 = $14,280,000 (aprox. con 3 trabajadores)</strong></p>
+      </div>
+      
+      <h3>⚡ Recomendaciones para Éxito</h3>
+      <ul>
+        <li>✅ Siembra maíz desde el MES 1 para tener cosecha en MES 3</li>
+        <li>✅ Planifica crecimiento de animales según nómina disponible</li>
+        <li>✅ Lleva registro exacto de producción (no pongas números al azar)</li>
+        <li>✅ Calcula bien impuestos trimestrales (3% de ganancias)</li>
+        <li>✅ El abonamiento es OBLIGATORIO y no es negociable</li>
+        <li>✅ Considera comprar camión cuando llegues a 1,000L/mes</li>
+        <li>✅ Objetivo: Ganar dinero (estar por encima del capital inicial en mes 12)</li>
+      </ul>
+      
+      <button class="btn" onclick="mostrarTab('config')">▶️ COMENZAR SIMULACIÓN</button>
+    </div>
+  </div>
+  
+  <!-- TAB CONFIGURACIÓN -->
+  <div id="config" class="tab">
+    <div class="section" style="max-width: 600px; margin: 2rem auto;">
+      <h2>⚙️ Configuración Inicial</h2>
+      
+      <div class="input-group">
+        <label>Nombre de la Granja:</label>
+        <input type="text" id="nomGranja" placeholder="Ej: Granja La Esperanza" value="Mi Granja">
+      </div>
+      
+      <div class="input-group">
+        <label>Nombre del Estudiante:</label>
+        <input type="text" id="nomEstudiante" placeholder="Ej: Juan García" value="Estudiante">
+      </div>
+      
+      <button class="btn" onclick="iniciarJuego()">▶️ INICIAR SIMULACIÓN</button>
+    </div>
+  </div>
+  
+  <!-- TAB JUEGO -->
+  <div id="juego" class="tab">
+    <div class="section">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <div>
+          <h3 id="nombreGranja">🚜 Mi Granja</h3>
+          <p>👤 Estudiante: <span id="nombreEstudiante">-</span></p>
+          <p>📅 Mes: <span id="mesActual">-</span></p>
+          <p>💰 Capital: <span id="capital">-</span></p>
+        </div>
+        <div>
+          <h3>Animales</h3>
+          <p>🐄 Vacas: <span id="numVacas">0</span></p>
+          <p>🐐 Cabras: <span id="numCabras">0</span></p>
+          <p>🐔 Gallinas: <span id="numGallinas">0</span></p>
+        </div>
+      </div>
+      
+      <div class="grid">
+        <button class="btn" onclick="abrirComprar()">🐄 Comprar Animales</button>
+        <button class="btn" onclick="abrirVender()">💵 Vender Animales</button>
+        <button class="btn" onclick="abrirProduccion()">📊 Producción</button>
+        <button class="btn" onclick="abrirVentas()">💰 Vender Productos</button>
+        <button class="btn" onclick="registrarGastos()">💸 Registrar Gastos</button>
+        <button class="btn btn-blue" onclick="finalizarMes()">✅ Finalizar Mes</button>
+      </div>
+      
+      <div class="alert alert-info">
+        <strong>Resumen del Mes:</strong><br>
+        Ingresos: $<span id="ingresos">0</span><br>
+        Egresos: $<span id="egresos">0</span>
+      </div>
+    </div>
+  </div>  
+  <!-- TAB PLANO -->
+  <div id="plano" class="tab">
+    <div class="section">
+      <h2>🏞️ Plano Visual de la Finca (80 hectáreas)</h2>
+      <canvas id="canvasPlano" width="1000" height="600" style="border: 2px solid #2e7d32; border-radius: 8px; background: #E8F5E9; width: 100%; max-width: 1000px; margin: 1rem 0;"></canvas>
+      
+      <div style="margin-top: 2rem;">
+        <h3>📊 Información en Tiempo Real</h3>
+        <div class="grid">
+          <div class="info-card">
+            <h4>🐄 Producción Vaca</h4>
+            <p><span id="prodVacas">0</span> vacas × 600L = <span id="totalLeche">0</span>L/mes</p>
+            <p>Ingreso: $<span id="ingresoVacas">0</span></p>
+          </div>
+          <div class="info-card">
+            <h4>🐐 Producción Cabra</h4>
+            <p><span id="prodCabras">0</span> cabras × 90L = <span id="totalLecheCabra">0</span>L/mes</p>
+            <p>Ingreso: $<span id="ingresoCabras">0</span></p>
+          </div>
+          <div class="info-card">
+            <h4>🐔 Producción Gallina</h4>
+            <p><span id="prodGallinas">0</span> gallinas × 1 panal = <span id="totalPanales">0</span> panales/mes</p>
+            <p>Ingreso: $<span id="ingresoGallinas">0</span></p>
+          </div>
+          <div class="info-card">
+            <h4>🌾 Consumo de Maíz</h4>
+            <p>Vacas consumen: <span id="consumoMaiz">0</span> toneladas/mes</p>
+            <p>(20 vacas = 3 ton)</p>
+          </div>
+        </div>
+        
+        <div class="alert alert-success" style="margin-top: 1rem;">
+          <strong>📈 Resumen Mensual Estimado:</strong><br>
+          Ingresos Totales: $<span id="totalIngresos">0</span><br>
+          Egresos Base (nómina + abonamiento): $<span id="totalEgresos">0</span><br>
+          Ganancia Neta: $<span id="gananciaEstimada">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODALES -->
+<div id="modalComprar" class="modal-overlay">
+  <div class="modal">
+    <span class="modal-close" onclick="cerrarModal('modalComprar')">&times;</span>
+    <h2>🐄 Comprar Animales y Semillas</h2>
+    <p>Capital disponible: $<span id="capitalMod">0</span></p>
+    
+    <h4 style="color: #2e7d32; margin-top: 1rem;">🐾 ANIMALES</h4>
+    <div class="input-group">
+      <label>🐄 Vacas Lactancia ($4,000,000 c/u - producen 20L/día)</label>
+      <input type="number" id="inVacas" min="0" value="0">
+    </div>
+    <div class="input-group">
+      <label>🐐 Cabras ($200,000 c/u - producen 3L/día)</label>
+      <input type="number" id="inCabras" min="0" value="0">
+    </div>
+    <div class="input-group">
+      <label>🐔 Gallinas ($30,000 c/u - producen 1 panal/mes)</label>
+      <input type="number" id="inGallinas" min="0" value="0">
+    </div>
+    
+    <h4 style="color: #2e7d32; margin-top: 1.5rem;">🌾 SEMILLAS DE MAÍZ</h4>
+    <div class="alert alert-info">
+      <strong>Información importante:</strong><br>
+      • 100 kg de semilla = 1 hectárea<br>
+      • Costo: $20,000 por kg<br>
+      • 100 kg = $2,000,000 por hectárea<br>
+      • Ciclo de cultivo: 3 meses (siembra → cosecha)<br>
+      • Producción: 5 toneladas por hectárea<br>
+      • Máximo: 5 hectáreas disponibles
+    </div>
+    <div class="input-group">
+      <label>🌾 Semilla de Maíz (en kg - máximo 500 kg = 5 hectáreas)</label>
+      <input type="number" id="inMaiz" min="0" max="500" value="0" placeholder="Ej: 100 kg (1 ha) o 500 kg (5 ha)">
+      <small style="color: #666;">Ingresa en kilos. 100 kg = 1 hectárea</small>
+    </div>
+    
+    <h4 style="color: #2e7d32; margin-top: 1.5rem;">🚛 EQUIPOS OPCIONALES</h4>
+    <div id="avisoTransporteSi" style="display: none;" class="alert alert-success">
+      <strong>✅ ¡DISPONIBLE CAMIÓN DE TRANSPORTE!</strong><br>
+      Has alcanzado 2,500+ litros de leche<br>
+      Costo: $100,000,000<br>
+      Se amortiza automáticamente: $25,000,000 cada 2 meses
+    </div>
+    <div class="input-group">
+      <label>
+        <input type="checkbox" id="compraCamion"> 🚛 Camión Transporte Leche ($100,000,000)
+      </label>
+      <small style="color: #666;">Requiere mín. 2,500 L/mes | Se amortiza: $25M cada 2 meses (automático)</small>
+    </div>
+    
+    <button class="btn" onclick="comprarAnimales()">✅ Confirmar Compra</button>
+    <button class="btn" style="background: #999;" onclick="cerrarModal('modalComprar')">Cancelar</button>
+  </div>
+</div>
+
+<div id="modalVender" class="modal-overlay">
+  <div class="modal">
+    <span class="modal-close" onclick="cerrarModal('modalVender')">&times;</span>
+    <h2>💵 Vender Animales</h2>
+    <div class="input-group">
+      <label>Vacas (<span id="vacasDisp">0</span> disponibles)</label>
+      <input type="number" id="venVacas" min="0" max="100" value="0">
+    </div>
+    <div class="input-group">
+      <label>Cabras (<span id="cabrasDisp">0</span> disponibles)</label>
+      <input type="number" id="venCabras" min="0" max="100" value="0">
+    </div>
+    <div class="input-group">
+      <label>Gallinas (<span id="gallinasDisp">0</span> disponibles)</label>
+      <input type="number" id="venGallinas" min="0" max="100" value="0">
+    </div>
+    <button class="btn" onclick="venderAnimales()">✅ Confirmar</button>
+    <button class="btn" style="background: #999;" onclick="cerrarModal('modalVender')">Cancelar</button>
+  </div>
+</div>
+
+<div id="modalProduccion" class="modal-overlay">
+  <div class="modal">
+    <span class="modal-close" onclick="cerrarModal('modalProduccion')">&times;</span>
+    <h2>📊 Registrar Producción del Mes</h2>
+    
+    <div class="alert alert-info">
+      <strong>⚠️ La producción se calcula automáticamente según tus animales:</strong>
+    </div>
+    
+    <div id="resumenProduccion" style="background: #f9f9f9; padding: 1rem; border-radius: 4px; margin: 1rem 0;">
+      <h4 style="color: #2e7d32;">PRODUCCIÓN CALCULADA:</h4>
+      <p><strong>🐄 Vacas:</strong> <span id="calcVacas">0</span> vacas × 600L/mes = <span id="calcLecheVacas">0</span> litros</p>
+      <p><strong>🐐 Cabras:</strong> <span id="calcCabras">0</span> cabras × 90L/mes = <span id="calcLecheCabras">0</span> litros</p>
+      <p><strong>🐔 Gallinas:</strong> <span id="calcGallinas">0</span> gallinas × 1 panal/mes = <span id="calcPanales">0</span> panales</p>
+      <hr>
+      <p><strong>TOTAL LECHE:</strong> <span id="totalLecheCalc">0</span> litros</p>
+      <p><strong>TOTAL HUEVOS:</strong> <span id="totalHuevosCalc">0</span> panales</p>
+    </div>
+    
+    <div id="avisoTransporte" style="display: none; margin: 1rem 0;" class="alert alert-success">
+      <strong>✅ ¡DISPONIBLE CAMIÓN DE TRANSPORTE!</strong><br>
+      Has alcanzado 2,500+ litros de leche<br>
+      Puedes comprar el CAMIÓN DE TRANSPORTE ($100,000,000)<br>
+      en la siguiente opción de compras.<br>
+      Se amortiza automáticamente: $25,000,000 cada 2 meses
+    </div>
+    
+    <div id="avisoFaltaCamion" style="display: none; margin: 1rem 0;" class="alert alert-danger">
+      <strong>⚠️ INFORMACIÓN</strong><br>
+      El camión se amortiza automáticamente cada 2 meses<br>
+      en el registro de gastos.
+    </div>
+    
+    <button class="btn" onclick="registrarProduccion()">✅ Registrar Producción (UNA SOLA VEZ)</button>
+    <button class="btn" style="background: #999;" onclick="cerrarModal('modalProduccion')">Cancelar</button>
+  </div>
+</div>
+
+<div id="modalVentas" class="modal-overlay">
+  <div class="modal">
+    <span class="modal-close" onclick="cerrarModal('modalVentas')">&times;</span>
+    <h2>💰 Vender Productos</h2>
+    <div class="input-group">
+      <label>Litros de Leche (tienes: <span id="lecheTienes">0</span>L)</label>
+      <input type="number" id="ventaLeche" min="0" value="0">
+    </div>
+    <div class="input-group">
+      <label>Panales de Huevos (tienes: <span id="huevesTienes">0</span>)</label>
+      <input type="number" id="ventaHuevos" min="0" value="0">
+    </div>
+    <button class="btn" onclick="registrarVentas()">✅ Registrar Ventas</button>
+    <button class="btn" style="background: #999;" onclick="cerrarModal('modalVentas')">Cancelar</button>
+  </div>
+</div>
+
+<script>
+let game = {
+  farmName: 'Mi Granja',
+  studentName: 'Estudiante',
+  mes: 1,
+  dinero: 100000000,
+  capitalInicial: 100000000,
+  vacas: 0,
+  cabras: 0,
+  gallinas: 0,
+  leche: 0,
+  huevos: 0,
+  ingresos: 0,
+  egresos: 0,
+  produccionRegistrada: false,
+  gastosRegistrados: false,
+  maizkg: 0,
+  tienecamion: false,
+  mesesDesdeMantenimiento: 0,
+  mesesCamion: 0,
+  amortizacionesPendientes: 0,
+  totalAmortizado: 0
+};
+
+function mostrarTab(tabName) {
+  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('show'));
+  document.getElementById(tabName).classList.add('show');
+  
+  document.querySelectorAll('.nav button').forEach(btn => btn.classList.remove('active'));
+  
+  // Activar el botón correspondiente
+  if (event && event.target) {
+    event.target.classList.add('active');
+  } else {
+    // Si no hay event, buscar el botón manualmente
+    const buttons = document.querySelectorAll('.nav button');
+    buttons.forEach(btn => {
+      if (btn.onclick && btn.onclick.toString().includes(tabName)) {
+        btn.classList.add('active');
+      }
+    });
+  }
+  
+  // Actualizar display si es el tab de juego o plano
+  if (tabName === 'juego' || tabName === 'plano') {
+    actualizarDisplay();
+  }
+}
+
+function iniciarJuego() {
+  game.farmName = document.getElementById('nomGranja').value || 'Mi Granja';
+  game.studentName = document.getElementById('nomEstudiante').value || 'Estudiante';
+  
+  document.getElementById('nombreGranja').textContent = '🚜 ' + game.farmName;
+  document.getElementById('nombreEstudiante').textContent = game.studentName;
+  
+  actualizarDisplay();
+  mostrarTab('juego');
+}
+
+function actualizarDisplay() {
+  document.getElementById('mesActual').textContent = 'Mes ' + game.mes;
+  document.getElementById('capital').textContent = '$' + game.dinero.toLocaleString();
+  document.getElementById('numVacas').textContent = game.vacas;
+  document.getElementById('numCabras').textContent = game.cabras;
+  document.getElementById('numGallinas').textContent = game.gallinas;
+  document.getElementById('ingresos').textContent = game.ingresos.toLocaleString();
+  document.getElementById('egresos').textContent = game.egresos.toLocaleString();
+  
+  document.getElementById('capitalMod').textContent = game.dinero.toLocaleString();
+  document.getElementById('vacasDisp').textContent = game.vacas;
+  document.getElementById('cabrasDisp').textContent = game.cabras;
+  document.getElementById('gallinasDisp').textContent = game.gallinas;
+  document.getElementById('lecheTienes').textContent = game.leche;
+  document.getElementById('huevesTienes').textContent = game.huevos;
+  
+  // Actualizar plano
+  actualizarPlano();
+}
+
+function actualizarPlano() {
+  // Cálculos de producción
+  const lecheVacas = game.vacas * 600;
+  const lecheCabras = game.cabras * 90;
+  const totalLeche = lecheVacas + lecheCabras;
+  const panales = game.gallinas * 1;
+  const consumoMaiz = (game.vacas / 20) * 3; // en toneladas
+  
+  // Ingresos estimados
+  const ingresoVacas = lecheVacas * 3000;
+  const ingresoCabras = lecheCabras * 5000;
+  const ingresoGallinas = panales * 30000;
+  const totalIngresos = ingresoVacas + ingresoCabras + ingresoGallinas;
+  
+  // Egresos base
+  const nominaBase = game.vacas > 0 ? Math.ceil(game.vacas / 20) * 1200000 + 1200000 : 1200000;
+  const abonamiento = 22620000; // Corregido: 75 hectáreas (60 ganadería + 10 cabras + 5 maíz)
+  const egresosBase = nominaBase + abonamiento;
+  
+  // Ganancia
+  const ganancia = totalIngresos - egresosBase;
+  
+  // Actualizar HTML
+  document.getElementById('prodVacas').textContent = game.vacas;
+  document.getElementById('totalLeche').textContent = lecheVacas.toLocaleString();
+  document.getElementById('ingresoVacas').textContent = ingresoVacas.toLocaleString();
+  
+  document.getElementById('prodCabras').textContent = game.cabras;
+  document.getElementById('totalLecheCabra').textContent = lecheCabras.toLocaleString();
+  document.getElementById('ingresoCabras').textContent = ingresoCabras.toLocaleString();
+  
+  document.getElementById('prodGallinas').textContent = game.gallinas;
+  document.getElementById('totalPanales').textContent = panales;
+  document.getElementById('ingresoGallinas').textContent = ingresoGallinas.toLocaleString();
+  
+  document.getElementById('consumoMaiz').textContent = consumoMaiz.toFixed(2);
+  
+  document.getElementById('totalIngresos').textContent = totalIngresos.toLocaleString();
+  document.getElementById('totalEgresos').textContent = egresosBase.toLocaleString();
+  document.getElementById('gananciaEstimada').textContent = ganancia.toLocaleString();
+  
+  // Dibujar plano
+  dibujarPlano();
+}
+
+function dibujarPlano() {
+  const canvas = document.getElementById('canvasPlano');
+  if (!canvas) return;
+  
+  const ctx = canvas.getContext('2d');
+  const ancho = canvas.width;
+  const alto = canvas.height;
+  
+  // Limpiar canvas
+  ctx.fillStyle = '#E8F5E9';
+  ctx.fillRect(0, 0, ancho, alto);
+  
+  // Bordes
+  ctx.strokeStyle = '#2e7d32';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(0, 0, ancho, alto);
+  
+  // Dimensiones de las zonas (proporcionales a las hectáreas)
+  const cellWidth = ancho / 8;
+  const cellHeight = alto / 5;
+  
+  // GANADERÍA (60 ha) - Azul claro
+  ctx.fillStyle = '#C5E1A5';
+  ctx.fillRect(0, 0, cellWidth * 6, cellHeight * 3);
+  ctx.strokeStyle = '#558B2F';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(0, 0, cellWidth * 6, cellHeight * 3);
+  ctx.fillStyle = '#333';
+  ctx.font = 'bold 16px Arial';
+  ctx.fillText('🐄 GANADERÍA (60 ha)', 20, cellHeight * 1.5);
+  ctx.font = '12px Arial';
+  ctx.fillText(game.vacas + ' Vacas | ' + game.cabras + ' Cabras', 30, cellHeight * 1.5 + 25);
+  
+  // CABRAS (10 ha) - Marrón claro
+  ctx.fillStyle = '#D7CCC8';
+  ctx.fillRect(cellWidth * 6, 0, cellWidth * 2, cellHeight * 3);
+  ctx.strokeStyle = '#6D4C41';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(cellWidth * 6, 0, cellWidth * 2, cellHeight * 3);
+  ctx.fillStyle = '#333';
+  ctx.font = 'bold 14px Arial';
+  ctx.fillText('🐐 CABRAS', cellWidth * 6 + 20, cellHeight * 1.5);
+  ctx.font = '12px Arial';
+  ctx.fillText('(10 ha)', cellWidth * 6 + 30, cellHeight * 1.5 + 25);
+  
+  // MAÍZ (5 ha) - Amarillo
+  ctx.fillStyle = '#FFF9C4';
+  ctx.fillRect(0, cellHeight * 3, cellWidth * 5, cellHeight * 2);
+  ctx.strokeStyle = '#F9A825';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(0, cellHeight * 3, cellWidth * 5, cellHeight * 2);
+  ctx.fillStyle = '#333';
+  ctx.font = 'bold 14px Arial';
+  ctx.fillText('🌾 MAÍZ (5 ha)', 20, cellHeight * 4);
+  ctx.font = '12px Arial';
+  ctx.fillText('Ciclo: Siembra → Cosecha cada 3 meses', 30, cellHeight * 4.3);
+  
+  // GALPONES (5 ha) - Naranja claro
+  ctx.fillStyle = '#FFE0B2';
+  ctx.fillRect(cellWidth * 5, cellHeight * 3, cellWidth * 3, cellHeight * 2);
+  ctx.strokeStyle = '#E65100';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(cellWidth * 5, cellHeight * 3, cellWidth * 3, cellHeight * 2);
+  ctx.fillStyle = '#333';
+  ctx.font = 'bold 14px Arial';
+  ctx.fillText('🐔 GALPONES (5 ha)', cellWidth * 5 + 20, cellHeight * 4);
+  ctx.font = '12px Arial';
+  ctx.fillText(game.gallinas + ' Gallinas', cellWidth * 5 + 30, cellHeight * 4.3);
+}
+
+function abrirModal(id) { document.getElementById(id).classList.add('show'); }
+function cerrarModal(id) { document.getElementById(id).classList.remove('show'); }
+
+function abrirComprar() { abrirModal('modalComprar'); }
+function abrirVender() { 
+  // Actualizar máximos disponibles
+  document.getElementById('venVacas').max = game.vacas;
+  document.getElementById('venCabras').max = game.cabras;
+  document.getElementById('venGallinas').max = game.gallinas;
+  
+  abrirModal('modalVender'); 
+}
+
+function abrirVentas() { 
+  // Actualizar máximos y valores disponibles
+  document.getElementById('ventaLeche').max = game.leche;
+  document.getElementById('ventaHuevos').max = game.huevos;
+  document.getElementById('lecheTienes').textContent = game.leche;
+  document.getElementById('huevesTienes').textContent = game.huevos;
+  
+  abrirModal('modalVentas'); 
+}
+
+function abrirProduccion() {
+  if (game.produccionRegistrada) {
+    alert('❌ La producción ya fue registrada este mes.\n\nYa tienes registrado:\n' + game.leche.toLocaleString() + ' L leche\n' + game.huevos + ' panales');
+    return;
+  }
+  
+  // Calcular producción automáticamente
+  const lecheVacas = game.vacas * 600;
+  const lecheCabras = game.cabras * 90;
+  const panales = game.gallinas * 1;
+  const totalLeche = lecheVacas + lecheCabras;
+  
+  // Mostrar cálculos
+  document.getElementById('calcVacas').textContent = game.vacas;
+  document.getElementById('calcLecheVacas').textContent = lecheVacas.toLocaleString();
+  document.getElementById('calcCabras').textContent = game.cabras;
+  document.getElementById('calcLecheCabras').textContent = lecheCabras.toLocaleString();
+  document.getElementById('calcGallinas').textContent = game.gallinas;
+  document.getElementById('calcPanales').textContent = panales;
+  document.getElementById('totalLecheCalc').textContent = totalLeche.toLocaleString();
+  document.getElementById('totalHuevosCalc').textContent = panales;
+  
+  // Mostrar aviso si alcanza 2,500 litros para comprar camión
+  if (totalLeche >= 2500 && !game.tienecamion) {
+    document.getElementById('avisoTransporte').style.display = 'block';
+  } else {
+    document.getElementById('avisoTransporte').style.display = 'none';
+  }
+  
+  // Ocultar aviso de mantenimiento (ya no se usa)
+  document.getElementById('avisoFaltaCamion').style.display = 'none';
+  
+  abrirModal('modalProduccion');
+}
+
+function registrarProduccion() {
+  console.log('=== REGISTRAR PRODUCCION INICIADO ===');
+  console.log('game:', game);
+  
+  if (game.produccionRegistrada) {
+    alert('❌ La producción ya fue registrada este mes');
+    return;
+  }
+  
+  if (game.vacas === 0 && game.cabras === 0 && game.gallinas === 0) {
+    alert('❌ No tienes animales. Compra animales primero');
+    return;
+  }
+  
+  // Calcular automáticamente
+  game.leche = (game.vacas * 600) + (game.cabras * 90);
+  game.huevos = game.gallinas * 1;
+  game.produccionRegistrada = true;
+  
+  console.log('Después de registrar:', game);
+  
+  const mensaje = '✅ PRODUCCIÓN REGISTRADA:\n\n🥛 Leche: ' + game.leche.toLocaleString() + ' litros\n🥚 Huevos: ' + game.huevos + ' panales\n\n✓ (Registrada una sola vez este mes)';
+  alert(mensaje);
+  
+  document.getElementById('modalProduccion').classList.remove('show');
+  actualizarDisplay();
+}
+
+function comprarAnimales() {
+  const v = +document.getElementById('inVacas').value || 0;
+  const c = +document.getElementById('inCabras').value || 0;
+  const g = +document.getElementById('inGallinas').value || 0;
+  const maiz = +document.getElementById('inMaiz').value || 0;
+  const compraCamion = document.getElementById('compraCamion') ? document.getElementById('compraCamion').checked : false;
+  
+  // Validar que maíz no exceda 500 kg (5 hectáreas)
+  if (maiz > 500) {
+    alert('❌ Máximo 500 kg de semilla (5 hectáreas disponibles)');
+    return;
+  }
+  
+  // Validar camión
+  if (compraCamion && game.leche < 2500) {
+    alert('❌ Necesitas al menos 2,500 litros de leche para comprar camión\n\nActualmente tienes: ' + game.leche.toLocaleString() + ' L');
+    return;
+  }
+  
+  if (compraCamion && game.tienecamion) {
+    alert('❌ Ya tienes un camión');
+    return;
+  }
+  
+  const costoAnimales = (v * 4000000) + (c * 200000) + (g * 30000);
+  const costoMaiz = maiz * 20000;
+  const costoCamion = compraCamion ? 100000000 : 0;
+  const costoTotal = costoAnimales + costoMaiz + costoCamion;
+  
+  if (costoTotal === 0) { 
+    alert('❌ Selecciona al menos un animal, semilla o equipo'); 
+    return; 
+  }
+  
+  if (game.dinero < costoTotal) { 
+    alert('❌ Dinero insuficiente\n\nNecesitas: $' + costoTotal.toLocaleString() + '\nTienes: $' + game.dinero.toLocaleString()); 
+    return; 
+  }
+  
+  game.dinero -= costoTotal;
+  game.egresos += costoTotal;
+  game.vacas += v;
+  game.cabras += c;
+  game.gallinas += g;
+  game.maizkg = (game.maizkg || 0) + maiz;
+  if (compraCamion) {
+    game.tienecamion = true;
+    game.mesesCamion = 0;
+    game.amortizacionesPendientes = 4; // 4 cuotas de $25M cada 2 meses
+    game.totalAmortizado = 0;
+  }
+  
+  let mensaje = '✅ COMPRA REALIZADA\n\n';
+  if (v > 0) mensaje += '🐄 ' + v + ' Vacas: $' + (v * 4000000).toLocaleString() + '\n';
+  if (c > 0) mensaje += '🐐 ' + c + ' Cabras: $' + (c * 200000).toLocaleString() + '\n';
+  if (g > 0) mensaje += '🐔 ' + g + ' Gallinas: $' + (g * 30000).toLocaleString() + '\n';
+  if (maiz > 0) {
+    const hectareas = (maiz / 100).toFixed(1);
+    mensaje += '🌾 ' + maiz + ' kg semilla maíz (' + hectareas + ' ha): $' + costoMaiz.toLocaleString() + '\n';
+    mensaje += '   Cosecha en MES ' + (game.mes + 3) + '\n';
+  }
+  if (compraCamion) {
+    mensaje += '🚛 Camión Transporte: $' + costoCamion.toLocaleString() + '\n';
+    mensaje += '   Amortización: $25,000,000 cada 2 meses (4 cuotas)\n';
+    mensaje += '   Se descuenta automáticamente en Registrar Gastos\n';
+  }
+  mensaje += '\n━━━━━━━━━━━━━━━━━━\nCosto Total: $' + costoTotal.toLocaleString();
+  
+  alert(mensaje);
+  
+  // Limpiar inputs
+  document.getElementById('inVacas').value = 0;
+  document.getElementById('inCabras').value = 0;
+  document.getElementById('inGallinas').value = 0;
+  document.getElementById('inMaiz').value = 0;
+  if (document.getElementById('compraCamion')) {
+    document.getElementById('compraCamion').checked = false;
+  }
+  
+  cerrarModal('modalComprar');
+  actualizarDisplay();
+}
+
+function venderAnimales() {
+  const v = +document.getElementById('venVacas').value || 0;
+  const c = +document.getElementById('venCabras').value || 0;
+  const g = +document.getElementById('venGallinas').value || 0;
+  const ingreso = (v * 4000000) + (c * 200000) + (g * 30000);
+  
+  if (ingreso === 0) { alert('❌ Selecciona al menos un animal'); return; }
+  if (game.vacas < v || game.cabras < c || game.gallinas < g) { 
+    alert('❌ No tienes suficientes animales'); 
+    return; 
+  }
+  
+  game.dinero += ingreso;
+  game.ingresos += ingreso;
+  game.vacas -= v;
+  game.cabras -= c;
+  game.gallinas -= g;
+  
+  let mensaje = '✅ VENTA REALIZADA\n\n';
+  if (v > 0) mensaje += '🐄 ' + v + ' Vacas: $' + (v * 4000000).toLocaleString() + '\n';
+  if (c > 0) mensaje += '🐐 ' + c + ' Cabras: $' + (c * 200000).toLocaleString() + '\n';
+  if (g > 0) mensaje += '🐔 ' + g + ' Gallinas: $' + (g * 30000).toLocaleString() + '\n';
+  mensaje += '\n━━━━━━━━━━━━━━━━━━\nIngreso Total: $' + ingreso.toLocaleString();
+  
+  alert(mensaje);
+  
+  // Limpiar inputs
+  document.getElementById('venVacas').value = 0;
+  document.getElementById('venCabras').value = 0;
+  document.getElementById('venGallinas').value = 0;
+  
+  cerrarModal('modalVender');
+  actualizarDisplay();
+}
+
+function registrarVentas() {
+  const leche = +document.getElementById('ventaLeche').value || 0;
+  const huevos = +document.getElementById('ventaHuevos').value || 0;
+  const ingreso = (leche * 3000) + (huevos * 30000);
+  
+  if (ingreso === 0) { alert('❌ Selecciona algo para vender'); return; }
+  if (game.leche < leche || game.huevos < huevos) { alert('❌ No tienes suficientes productos'); return; }
+  
+  game.dinero += ingreso;
+  game.ingresos += ingreso;
+  game.leche -= leche;
+  game.huevos -= huevos;
+  
+  let mensaje = '✅ VENTAS REGISTRADAS\n\n';
+  if (leche > 0) mensaje += '🥛 Leche: ' + leche.toLocaleString() + 'L × $3,000 = $' + (leche * 3000).toLocaleString() + '\n';
+  if (huevos > 0) mensaje += '🥚 Huevos: ' + huevos + ' panales × $30,000 = $' + (huevos * 30000).toLocaleString() + '\n';
+  mensaje += '\n━━━━━━━━━━━━━━━━━━\nIngreso Total: $' + ingreso.toLocaleString();
+  
+  alert(mensaje);
+  
+  // Limpiar inputs
+  document.getElementById('ventaLeche').value = 0;
+  document.getElementById('ventaHuevos').value = 0;
+  
+  cerrarModal('modalVentas');
+  actualizarDisplay();
+}
+
+function registrarGastos() {
+  // Control: una sola vez al mes
+  if (game.gastosRegistrados) {
+    alert('❌ Los gastos ya fueron registrados este mes');
+    return;
+  }
+  
+  if (!game.produccionRegistrada) {
+    alert('❌ Primero debes registrar la PRODUCCIÓN');
+    return;
+  }
+  
+  // Calcular nómina según cantidad de vacas
+  let numTrabajadores = 2; // Inicial
+  if (game.vacas >= 21 && game.vacas <= 40) numTrabajadores = 2;
+  if (game.vacas >= 41 && game.vacas <= 60) numTrabajadores = 3;
+  if (game.vacas >= 61 && game.vacas <= 80) numTrabajadores = 4;
+  if (game.vacas > 80) numTrabajadores = Math.floor(game.vacas / 20) + 1;
+  
+  // Si tiene maíz, +1 trabajador
+  if (game.maizkg > 0) numTrabajadores += 1;
+  
+  const costoPorTrabajador = 1200000; // $60,000/día × 20 días
+  const nómina = numTrabajadores * costoPorTrabajador;
+  const abonamiento = 22620000;
+  let total = nómina + abonamiento;
+  
+  // Aviso de cambio en trabajadores
+  let avisoTrabajadores = '';
+  if (game.vacas >= 21 && game.vacas <= 40 && numTrabajadores === 2) {
+    avisoTrabajadores = '\n📊 Trabajadores: 2 (vacas 2-40)';
+  } else if (game.vacas >= 41 && game.vacas <= 60 && numTrabajadores === 3) {
+    avisoTrabajadores = '\n⚠️ NUEVO TRABAJADOR: Ahora tienes ' + numTrabajadores + ' trabajadores\n(has alcanzado 41-60 vacas)';
+  } else if (game.vacas >= 61 && game.vacas <= 80 && numTrabajadores === 4) {
+    avisoTrabajadores = '\n⚠️ NUEVO TRABAJADOR: Ahora tienes ' + numTrabajadores + ' trabajadores\n(has alcanzado 61-80 vacas)';
+  } else if (game.vacas > 80) {
+    avisoTrabajadores = '\n⚠️ NUEVO TRABAJADOR: Ahora tienes ' + numTrabajadores + ' trabajadores\n(has excedido 80 vacas)';
+  }
+  
+  if (game.maizkg > 0) {
+    avisoTrabajadores += '\n✅ +1 trabajador por maíz (5 hectáreas)';
+  }
+  
+  // Amortización camión (cada 2 meses)
+  let avisoAmortizacion = '';
+  let costoAmortizacion = 0;
+  if (game.tienecamion && game.amortizacionesPendientes > 0) {
+    game.mesesCamion = (game.mesesCamion || 0) + 1;
+    if (game.mesesCamion >= 2) {
+      costoAmortizacion = 25000000;
+      avisoAmortizacion = '\n💳 AMORTIZACIÓN CAMIÓN: $25,000,000';
+      game.totalAmortizado += costoAmortizacion;
+      game.amortizacionesPendientes -= 1;
+      game.mesesCamion = 0; // Reset contador
+      
+      if (game.amortizacionesPendientes === 0) {
+        avisoAmortizacion += ' (✓ Completamente pagado)';
+      } else {
+        avisoAmortizacion += ' (' + game.amortizacionesPendientes + ' cuota' + (game.amortizacionesPendientes > 1 ? 's' : '') + ' pendiente' + (game.amortizacionesPendientes > 1 ? 's' : '') + ')';
+      }
+    }
+  }
+  
+  total += costoAmortizacion;
+  
+  if (game.dinero < total) {
+    alert('❌ Dinero insuficiente\n\nNecesitas: $' + total.toLocaleString() + '\nTienes: $' + game.dinero.toLocaleString());
+    return;
+  }
+  
+  game.dinero -= total;
+  game.egresos += total;
+  game.gastosRegistrados = true;
+  
+  let mensaje = '✅ GASTOS REGISTRADOS:\n\n';
+  mensaje += '👷 Nómina (' + numTrabajadores + ' trabajadores): $' + nómina.toLocaleString() + avisoTrabajadores + '\n';
+  mensaje += '🌾 Abonamiento: $' + abonamiento.toLocaleString() + '\n';
+  if (costoAmortizacion > 0) {
+    mensaje += avisoAmortizacion + '\n';
+  }
+  mensaje += '\n━━━━━━━━━━━━━━━━━━\nTotal: $' + total.toLocaleString();
+  mensaje += '\n✓ (Registrado una sola vez este mes)';
+  
+  alert(mensaje);
+  actualizarDisplay();
+}
+
+function finalizarMes() {
+  if (!game.gastosRegistrados) {
+    alert('❌ Debes registrar los GASTOS antes de finalizar el mes');
+    return;
+  }
+  
+  game.mes++;
+  game.ingresos = 0;
+  game.egresos = 0;
+  game.produccionRegistrada = false;
+  game.gastosRegistrados = false;
+  
+  // Limpiar inputs
+  document.getElementById('inVacas').value = 0;
+  document.getElementById('inCabras').value = 0;
+  document.getElementById('inGallinas').value = 0;
+  document.getElementById('inMaiz').value = 0;
+  if (document.getElementById('compraCamion')) document.getElementById('compraCamion').checked = false;
+  
+  if (game.mes > 12) {
+    if (game.dinero > game.capitalInicial) {
+      alert('✅ ¡AÑO EXITOSO!\n\nCapital Inicial: $' + game.capitalInicial.toLocaleString() + '\nCapital Final: $' + game.dinero.toLocaleString() + '\nGanancia: $' + (game.dinero - game.capitalInicial).toLocaleString());
+      // Aquí se podría permitir continuar al año 2
+    } else {
+      alert('❌ BANCARROTA - Fin del simulador\n\nCapital Final: $' + game.dinero.toLocaleString());
+      mostrarTab('inicio');
+      return;
+    }
+  }
+  
+  alert('✅ Mes ' + (game.mes - 1) + ' cerrado.\n¡Bienvenido al Mes ' + game.mes + '!');
+  actualizarDisplay();
+}
+
+actualizarDisplay();
+</script>
+
+</body>
+</html>
